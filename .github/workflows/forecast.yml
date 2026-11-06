@@ -2,8 +2,8 @@ name: Hourly forecast
 
 on:
   schedule:
-    - cron: "7,17,27,37,47,57 * * * *"   # every 10 min; GitHub drops many scheduled runs,
-                                         # so try often - a forecast is issued once per new hour
+    - cron: "7,17,27,37,47,57 * * * *"   # backup only; cron-job.org triggers this every 10 min
+                                         # a forecast is issued once per new hour
   workflow_dispatch:
 
 permissions:
@@ -40,11 +40,11 @@ jobs:
         run: python forecast.py
 
       - name: Build website
-        if: steps.fc.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.fc.outputs.new == 'true'
         run: python build_site.py
 
       - name: Commit data
-        if: steps.fc.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.fc.outputs.new == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -54,11 +54,11 @@ jobs:
           git push
 
       - uses: actions/configure-pages@v5
-        if: steps.fc.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.fc.outputs.new == 'true'
       - uses: actions/upload-pages-artifact@v3
-        if: steps.fc.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.fc.outputs.new == 'true'
         with:
           path: docs
       - id: deploy
-        if: steps.fc.outputs.new == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.fc.outputs.new == 'true'
         uses: actions/deploy-pages@v4
