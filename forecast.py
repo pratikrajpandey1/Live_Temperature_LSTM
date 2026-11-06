@@ -1,5 +1,6 @@
 """Hourly job: pull the latest KABQ observations, archive them, issue a new 24-h forecast."""
 from datetime import timedelta
+import os
 import sys
 
 import pandas as pd
@@ -32,6 +33,9 @@ def main():
     tc.write_forecasts(rows)
     r = rows[rows.model == ck["name"]]
     print(f"issued {origin} UTC: next 24 h {r.T_pred_C.min():.1f} .. {r.T_pred_C.max():.1f} C")
+    if os.environ.get("GITHUB_OUTPUT"):              # tell the workflow a new forecast exists
+        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+            fh.write("new=true\n")
 
 
 if __name__ == "__main__":
